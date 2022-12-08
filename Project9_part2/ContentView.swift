@@ -7,15 +7,52 @@
 
 import SwiftUI
 
+struct ColorCyclingCircle: View {
+    var amount = 0.0
+    var steps = 100
+    
+    var body: some View {
+        ZStack {//挙動が遅いので.drawingGroup()を活用する
+            ForEach(0..<steps) { value in
+                Circle()
+                    .inset(by: Double(value))
+                    .strokeBorder(
+                        LinearGradient(gradient: Gradient(colors: [
+                            color(for: value, bringness: 1),
+                            color(for: value, bringness: 0.5),
+                        ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 2)
+            }
+        }
+        .drawingGroup()
+    }
+    func color(for value: Int, bringness: Double) -> Color {
+        var targetHue = Double(value) / Double(steps) + amount
+        
+        if targetHue > 1 {
+            targetHue -= 1
+        }
+        return Color(hue: targetHue, saturation: 1, brightness: bringness)
+    }
+}
+
 
 struct ContentView: View {
     //Project9_part2 やっていきやしょう(๑>◡<๑)！！
+    //同心円をさまざまな色でレンダリングするビューを作っていきます
+    @State private var colorCycle = 0.0
+    
     var body: some View {
-        Capsule()
-            .strokeBorder(ImagePaint(image: Image("orizuru"),sourceRect: CGRect(x: 0, y: 0.25, width: 1, height: 0.3),scale: 0.4), lineWidth: 20)//手を加えていきます Cupsuleに変更
-            .frame(width: 300,height: 200)
-
-        
+        VStack {
+            ColorCyclingCircle(amount: colorCycle)
+                .frame(width: 300, height: 300)
+            
+            Slider(value: $colorCycle)
+                .padding(.horizontal)
+        }
     }
 }
 
